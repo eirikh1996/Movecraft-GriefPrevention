@@ -1,0 +1,7 @@
+name: Movecraft-GriefPrevention
+main: io.github.eirikh1996.mgp.MGP
+version: 1.0
+api-version: 1.13
+softdepend:
+  - Movecraft
+  - GriefPrevention
