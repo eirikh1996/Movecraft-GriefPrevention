@@ -1,3 +1,4 @@
 locale: en
 endSiegeOnSink: true
 allowSinkOnNoPvP: false
+allowCraftEntryOnSiege: true

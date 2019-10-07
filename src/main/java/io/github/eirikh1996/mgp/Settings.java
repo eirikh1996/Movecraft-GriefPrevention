@@ -4,4 +4,5 @@ public class Settings {
     public static String locale;
     public static boolean endSiegeOnSink;
     public static boolean allowSinkOnNoPvP;
+    public static boolean allowCraftEntryOnSiege;
 }

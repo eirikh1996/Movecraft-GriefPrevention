@@ -36,7 +36,7 @@ public class MGP extends JavaPlugin implements Listener {
             griefPreventionPlugin = (GriefPrevention) gp;
         }
         Plugin mp = getServer().getPluginManager().getPlugin("Movecraft");
-        if (gp instanceof Movecraft){
+        if (mp instanceof Movecraft){
             getLogger().info(I18nSupport.getInternationalisedString("Startup - Movecraft found"));
             movecraftPlugin = (Movecraft) mp;
         }
@@ -58,6 +58,7 @@ public class MGP extends JavaPlugin implements Listener {
         Settings.locale = getConfig().getString("locale", "en");
         Settings.endSiegeOnSink = getConfig().getBoolean("endSiegeOnSink", true);
         Settings.allowSinkOnNoPvP = getConfig().getBoolean("allowSinkOnNoPvP", false);
+        Settings.allowCraftEntryOnSiege = getConfig().getBoolean("allowCraftEntryOnSiege", true);
     }
 
     @EventHandler
@@ -69,7 +70,14 @@ public class MGP extends JavaPlugin implements Listener {
             if (event.getOldHitBox().contains(ml)){
                 continue;
             }
-            if (griefPreventionPlugin.allowBuild(event.getCraft().getNotificationPlayer(), ml.toBukkit(event.getCraft().getW())) != null){
+            Claim claim = griefPreventionPlugin.dataStore.getClaimAt(ml.toBukkit(event.getCraft().getW()), false, null);
+            if (claim == null){
+                continue;
+            }
+            if (claim.siegeData != null && Settings.allowCraftEntryOnSiege){
+                continue;
+            }
+            if (claim.allowAccess(event.getCraft().getNotificationPlayer()) != null){
                 event.setFailMessage(I18nSupport.getInternationalisedString("Translation - Not permitted to build"));
                 event.setCancelled(true);
                 break;
@@ -87,8 +95,15 @@ public class MGP extends JavaPlugin implements Listener {
             if (event.getOldHitBox().contains(ml)){
                 continue;
             }
-            if (griefPreventionPlugin.allowBuild(event.getCraft().getNotificationPlayer(), ml.toBukkit(event.getCraft().getW())) != null){
-                event.setFailMessage(I18nSupport.getInternationalisedString("Rotation - Not permitted to build"));
+            Claim claim = griefPreventionPlugin.dataStore.getClaimAt(ml.toBukkit(event.getCraft().getW()), false, null);
+            if (claim == null){
+                continue;
+            }
+            if (claim.siegeData != null && Settings.allowCraftEntryOnSiege){
+                continue;
+            }
+            if (claim.allowAccess(event.getCraft().getNotificationPlayer()) != null){
+                event.setFailMessage(I18nSupport.getInternationalisedString("Translation - Not permitted to build"));
                 event.setCancelled(true);
                 break;
             }
@@ -103,6 +118,9 @@ public class MGP extends JavaPlugin implements Listener {
             event.setCancelled(true);
             return;
         }
+        /*
+        If end siege on sink is enabled, ignore crafts with null and dead pilots
+         */
         if (Settings.endSiegeOnSink &&
                 event.getCraft().getNotificationPlayer() != null &&
                 !event.getCraft().getNotificationPlayer().isDead()){
@@ -110,7 +128,7 @@ public class MGP extends JavaPlugin implements Listener {
                 if (event.getCraft().getNotificationPlayer().equals(claim.siegeData.attacker)){
                     griefPreventionPlugin.dataStore.endSiege(claim.siegeData, claim.siegeData.defender.getDisplayName(), event.getCraft().getNotificationPlayer().getDisplayName(), null);
                 } else if (event.getCraft().getNotificationPlayer().equals(claim.siegeData.defender)){
-                    griefPreventionPlugin.dataStore.endSiege(claim.siegeData, claim.siegeData.defender.getDisplayName(), event.getCraft().getNotificationPlayer().getDisplayName(), null);
+                    griefPreventionPlugin.dataStore.endSiege(claim.siegeData, claim.siegeData.attacker.getDisplayName(), event.getCraft().getNotificationPlayer().getDisplayName(), null);
                 }
             }
         }

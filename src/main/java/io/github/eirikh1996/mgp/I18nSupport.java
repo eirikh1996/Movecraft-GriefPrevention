@@ -10,6 +10,7 @@ import java.util.Properties;
 public class I18nSupport {
     private static Properties languageFile;
     public static boolean initialize(){
+        MGP.getInstance().saveResource("localisation/mgplang_en.properties", false);
         languageFile = new Properties();
         File file = new File(MGP.getInstance().getDataFolder().getAbsolutePath() + "/localisation/mgplang_" + Settings.locale + ".properties");
         try {
