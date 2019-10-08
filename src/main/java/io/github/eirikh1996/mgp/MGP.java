@@ -9,6 +9,7 @@ import net.countercraft.movecraft.events.CraftSinkEvent;
 import net.countercraft.movecraft.events.CraftTranslateEvent;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
+import org.bukkit.event.player.PlayerJoinEvent;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.java.JavaPlugin;
 
@@ -50,7 +51,9 @@ public class MGP extends JavaPlugin implements Listener {
             getServer().getPluginManager().disablePlugin(this);
             return;
         }
+        UpdateManager.initialize();
         getServer().getPluginManager().registerEvents(this, this);
+        UpdateManager.getInstance().start();
     }
 
     private void loadConfig(){
@@ -125,6 +128,9 @@ public class MGP extends JavaPlugin implements Listener {
                 event.getCraft().getNotificationPlayer() != null &&
                 !event.getCraft().getNotificationPlayer().isDead()){
             for (Claim claim : griefPreventionPlugin.dataStore.getClaims()){
+                if (claim.siegeData == null){
+                    continue;
+                }
                 if (event.getCraft().getNotificationPlayer().equals(claim.siegeData.attacker)){
                     griefPreventionPlugin.dataStore.endSiege(claim.siegeData, claim.siegeData.defender.getDisplayName(), event.getCraft().getNotificationPlayer().getDisplayName(), null);
                 } else if (event.getCraft().getNotificationPlayer().equals(claim.siegeData.defender)){
@@ -133,6 +139,11 @@ public class MGP extends JavaPlugin implements Listener {
             }
         }
 
+    }
+
+    @EventHandler
+    public void onPlayerJoin(PlayerJoinEvent event){
+        UpdateManager.getInstance().sendUpdateMessage(event.getPlayer());
     }
 
     public Movecraft getMovecraftPlugin() {
