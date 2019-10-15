@@ -59,6 +59,7 @@ public class MGP extends JavaPlugin implements Listener {
     private void loadConfig(){
         saveDefaultConfig();
         Settings.locale = getConfig().getString("locale", "en");
+        Settings.preventCraftEntryOnNoAccess = getConfig().getBoolean("preventCraftEntryOnNoAccess", true);
         Settings.endSiegeOnSink = getConfig().getBoolean("endSiegeOnSink", true);
         Settings.allowSinkOnNoPvP = getConfig().getBoolean("allowSinkOnNoPvP", false);
         Settings.allowCraftEntryOnSiege = getConfig().getBoolean("allowCraftEntryOnSiege", true);
@@ -80,7 +81,7 @@ public class MGP extends JavaPlugin implements Listener {
             if (claim.siegeData != null && Settings.allowCraftEntryOnSiege){
                 continue;
             }
-            if (claim.allowAccess(event.getCraft().getNotificationPlayer()) != null){
+            if (Settings.preventCraftEntryOnNoAccess && claim.allowAccess(event.getCraft().getNotificationPlayer()) != null){
                 event.setFailMessage(I18nSupport.getInternationalisedString("Translation - Not permitted to build"));
                 event.setCancelled(true);
                 break;
@@ -105,7 +106,7 @@ public class MGP extends JavaPlugin implements Listener {
             if (claim.siegeData != null && Settings.allowCraftEntryOnSiege){
                 continue;
             }
-            if (claim.allowAccess(event.getCraft().getNotificationPlayer()) != null){
+            if (Settings.preventCraftEntryOnNoAccess && claim.allowAccess(event.getCraft().getNotificationPlayer()) != null){
                 event.setFailMessage(I18nSupport.getInternationalisedString("Translation - Not permitted to build"));
                 event.setCancelled(true);
                 break;
